@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.cell.TextFieldListCell?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.TilePane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<VBox alignment="BASELINE_CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="spc.lottery.lottery.HelloController"
+>
+    <padding>
+        <Insets bottom="10.0" left="20.0" right="20.0" top="10.0"/>
+    </padding>
+    <Label text="抽奖模拟器"/>
+
+    <HBox alignment="TOP_CENTER" spacing="10">
+
+        <VBox alignment="TOP_CENTER" maxWidth="600">
+            <!--            <TextField text="道具1" fx:id="dj1"/><TextField text="0.001" fx:id="tf1"/><TextField text="道具2" fx:id="dj2"/><TextField text="0.001" fx:id="tf2"/>-->
+            <!--            <TextField text="道具3" fx:id="dj3"/><TextField text="0.001" fx:id="tf3"/>-->
+
+            <GridPane fx:id="gridPane" alignment="BASELINE_CENTER" hgap="10" vgap="10">
+
+            </GridPane>
+
+        </VBox>
+        <VBox alignment="CENTER">
+            <TextArea fx:id="textArea" prefHeight="200.0" prefWidth="400.0"/>
+            <GridPane alignment="center" hgap="10" vgap="10">
+                <!-- 第一行 -->
+                <Button text="抽一次" onAction="#drawClick" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <Button text="抽五次" onAction="#drawClick" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                <Button text="抽十次" onAction="#drawClick" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+                <Button text="抽一百次" onAction="#drawClick" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+                <!-- 第二行 -->
+                <Button text="抽一千次" onAction="#drawClick" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <Button text="抽一万次" onAction="#drawClick" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                <Button text="抽十万次" onAction="#drawClick" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+                <Button text="抽一百万次" onAction="#drawClick" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+
+                <!-- reseteUser-->
+                <Button text="重置获奖情况" onAction="#reset" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            </GridPane>
+        </VBox>
+
+    </HBox>
+
+</VBox>
