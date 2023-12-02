@@ -32,6 +32,8 @@
 
             </GridPane>
 
+            <Button text="自动汇总概率数据" onAction="#sum" alignment="CENTER"/>
+            <Button text="保存道具概率" onAction="#saveRates" alignment="CENTER"/>
         </VBox>
         <VBox alignment="CENTER">
             <TextArea fx:id="textArea" prefHeight="200.0" prefWidth="400.0"/>

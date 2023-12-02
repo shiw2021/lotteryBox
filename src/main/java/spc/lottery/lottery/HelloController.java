@@ -1,11 +1,15 @@
 package spc.lottery.lottery;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 
 
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -103,6 +107,12 @@ public class HelloController {
                     TextField textField = new TextField();
                     textField.setText(text);
                     gridPane.add(textField, col, row);
+                    // Add a ChangeListener to the TextField
+                    textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+                        if (false == newValue) {
+                            updatePrizeList();
+                        }
+                    });
                 }
             }
         } catch (IOException e) {
@@ -110,16 +120,77 @@ public class HelloController {
         }
     }
 
-    public void updateValuesToFile() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("yourfile.txt"))) {
-            int colCount = gridPane.getColumnCount();
-            for (TextField[] row : textFields) {
-                for (TextField textField : row) {
-                    writer.write(textField.getText() + " ");
-                    colCount++;
-                    if (colCount % gridPane.getColumnCount() == 0)
-                        writer.newLine();
+    private void updatePrizeList() {
+        List<Prize> newPrizeList = new ArrayList<>();
+        String t = "name";
+        for (Node node : gridPane.getChildren()) {
+
+            if (node instanceof TextField) {
+                if (t.equals("name") && !((TextField) node).getText().equals("")) {
+                    t = "rate";
+                    newPrizeList.add(new Prize(((TextField) node).getText(), 0));
+                } else if (t.equals("rate")) {
+                    t = "name";
+                    try {
+                        newPrizeList.get(newPrizeList.size() - 1).setRate(Float.parseFloat(((TextField) node).getText()));
+                    } catch (Exception e) {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setContentText("有一个概率格式输入错误，取消更新");
+                        return;
+                    }
                 }
+            }
+        }
+        prizeList = newPrizeList;
+    }
+
+//    private void updatePrizeList() {
+//        List<Prize> newPrizeList = new ArrayList<>();
+//        int tfIndex = 0;
+//        int pIndex = 0;
+//        for (javafx.scene.Node node : gridPane.getChildren()) {
+//            if (node instanceof TextField) {
+//                TextField textField = (TextField) node;
+//                if(textField.getText().equals("")){
+//                    continue;
+//                }
+//                if (tfIndex % 2 == 0) {
+//
+//                    String oldName = prizeList.get(pIndex).getName();
+//                    String newName = textField.getText();
+//                    if (!oldName.equals(newName)) {
+//                        prizeList.get(pIndex).setName(newName);
+//                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+//                        alert.setContentText("道具名: " + oldName + "修改为" + newName);
+//                    }
+//
+//                } else {
+//                    float oldRate = prizeList.get(pIndex).getRate();
+//                    try {
+//                        float newRate = Float.parseFloat(textField.getText());
+//                        if (oldRate != newRate) {
+//                            prizeList.get(pIndex).setRate(newRate);
+//                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+//                            alert.setContentText("道具: " + prizeList.get(pIndex).getName() + "的概率修改为" + newRate);
+//                        }
+//                    } catch (Exception e) {
+//                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+//                        alert.setContentText("有一个概率格式输入错误, 已自动回复原值");
+//                        textField.setText(oldRate + "");
+//                    }
+//                    //下一个prize
+//                    pIndex++;
+//                }
+//            }
+//
+//        }
+//    }
+
+    public void saveRates() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("record.txt"))) {
+            int colCount = gridPane.getColumnCount();
+            for (Prize prize : prizeList) {
+                writer.write(prize.getName() + " " + prize.getRate() + "\n");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -146,4 +217,17 @@ public class HelloController {
         }
     }
 
+    public void sum(ActionEvent actionEvent) {
+        BigDecimal f = new BigDecimal("0.000000");
+        for (Prize prize : prizeList) {
+            f = f.add(new BigDecimal(""+prize.getRate()));
+        }
+        // 提示框
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("提示");
+        alert.setHeaderText("提示");
+        alert.setContentText("综合中奖率：\n" + f);
+        alert.showAndWait();
+
+    }
 }
