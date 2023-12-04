@@ -14,20 +14,39 @@
 <?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.text.Font?>
 <VBox alignment="BASELINE_CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
       fx:controller="spc.lottery.lottery.HelloController"
 >
     <padding>
         <Insets bottom="10.0" left="20.0" right="20.0" top="10.0"/>
     </padding>
-    <Label text="抽奖模拟器"/>
-
+    <!--    <Label text="抽奖模拟器" font="20"/>-->
+    <Label text="抽奖模拟器">
+        <font>
+            <Font size="20"/>
+        </font>
+    </Label>
     <HBox alignment="TOP_CENTER" spacing="10">
 
         <VBox alignment="TOP_CENTER" maxWidth="600">
             <!--            <TextField text="道具1" fx:id="dj1"/><TextField text="0.001" fx:id="tf1"/><TextField text="道具2" fx:id="dj2"/><TextField text="0.001" fx:id="tf2"/>-->
             <!--            <TextField text="道具3" fx:id="dj3"/><TextField text="0.001" fx:id="tf3"/>-->
 
+            <GridPane   hgap="10" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="ALWAYS" />
+                    <ColumnConstraints hgrow="ALWAYS" />
+                    <ColumnConstraints hgrow="ALWAYS" />
+                    <ColumnConstraints hgrow="ALWAYS" />
+                </columnConstraints>
+                <Label text="道具名称" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <Label text="概率" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                <Label text="道具名称" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+                <Label text="概率" GridPane.columnIndex="4" GridPane.rowIndex="0"/>
+
+            </GridPane>
             <GridPane fx:id="gridPane" alignment="BASELINE_CENTER" hgap="10" vgap="10">
 
             </GridPane>
@@ -35,23 +54,41 @@
             <Button text="自动汇总概率数据" onAction="#sum" alignment="CENTER"/>
             <Button text="保存道具概率" onAction="#saveRates" alignment="CENTER"/>
         </VBox>
-        <VBox alignment="CENTER">
-            <TextArea fx:id="textArea" prefHeight="200.0" prefWidth="400.0"/>
-            <GridPane alignment="center" hgap="10" vgap="10">
+        <VBox alignment="TOP_CENTER">
+            <TextArea fx:id="textArea" prefHeight="400.0" prefWidth="400.0" styleClass="text-area"/>
+            <!--            <padding>-->
+            <!--                <Insets bottom="10.0" left="20.0" right="20.0" top="10.0"/>-->
+            <!--            </padding>-->
+            <GridPane fx:id="buttonsGrid" alignment="center" hgap="10" vgap="10">
                 <!-- 第一行 -->
-                <Button text="抽一次" onAction="#drawClick" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                <Button text="抽五次" onAction="#drawClick" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-                <Button text="抽十次" onAction="#drawClick" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
-                <Button text="抽一百次" onAction="#drawClick" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+                <Button text="抽奖一次" onAction="#drawClick" styleClass="large-button" GridPane.columnIndex="0"
+                        GridPane.rowIndex="0"/>
+                <Button text="抽奖五次" onAction="#drawClick" styleClass="large-button" GridPane.columnIndex="1"
+                        GridPane.rowIndex="0"/>
+                <Button text="抽奖十次" onAction="#drawClick" styleClass="large-button" GridPane.columnIndex="2"
+                        GridPane.rowIndex="0"/>
+                <Button text="抽奖一百次" onAction="#drawClick" styleClass="large-button" GridPane.columnIndex="3"
+                        GridPane.rowIndex="0"/>
                 <!-- 第二行 -->
-                <Button text="抽一千次" onAction="#drawClick" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-                <Button text="抽一万次" onAction="#drawClick" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                <Button text="抽十万次" onAction="#drawClick" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
-                <Button text="抽一百万次" onAction="#drawClick" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+                <Button text="抽奖一千次" onAction="#drawClick" styleClass="large-button" GridPane.columnIndex="0"
+                        GridPane.rowIndex="1"/>
+                <Button text="抽奖一万次" onAction="#drawClick" styleClass="large-button" GridPane.columnIndex="1"
+                        GridPane.rowIndex="1"/>
+                <Button text="抽奖十万次" onAction="#drawClick" styleClass="large-button" GridPane.columnIndex="2"
+                        GridPane.rowIndex="1"/>
+                <Button text="抽奖一百万次" onAction="#drawClick" styleClass="large-button" GridPane.columnIndex="3"
+                        GridPane.rowIndex="1"/>
+                <!-- 第三行 -->
+                <Button text="抽奖一千万次" onAction="#drawClick" styleClass="large-button" GridPane.columnIndex="0"
+                        GridPane.rowIndex="2"/>
+                <Button text="抽奖一亿次" onAction="#drawClick" styleClass="large-button" GridPane.columnIndex="1"
+                        GridPane.rowIndex="2"/>
+                <Button text="抽奖十亿次" onAction="#drawClick" styleClass="large-button" GridPane.columnIndex="2"
+                        GridPane.rowIndex="2"/>
 
-                <!-- reseteUser-->
-                <Button text="重置获奖情况" onAction="#reset" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
             </GridPane>
+            <ProgressBar fx:id="progressBar"/>
+            <Button text="重置获奖情况" onAction="#reset" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
         </VBox>
 
     </HBox>

@@ -1,5 +1,7 @@
 package spc.lottery.lottery;
 
+import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -17,13 +19,18 @@ import java.io.IOException;
 
 
 import java.io.*;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.Thread.sleep;
+
 public class HelloController {
+    public ProgressBar progressBar;
     int numRows = 20; // Set the number of rows as needed
     int numColumns = 4; // Set the number of columns as needed
 
+    private User user = new User();
     public TextArea textArea = new TextArea();
     @FXML
     private GridPane gridPane;
@@ -40,26 +47,86 @@ public class HelloController {
         generateTextFields();
     }
 
-    public void drawClick(ActionEvent actionEvent) {
+    public void drawClick(ActionEvent actionEvent) throws InterruptedException {
+
+        if (HelloApplication.lock) {
+            alert(false, "正在抽奖中，请稍后再试");
+            return;
+        }
         // 获取点击的按钮
         Button clickedButton = (Button) actionEvent.getSource();
         String buttonText = clickedButton.getText();
-
-
-        // 将按钮的名称追加到TextArea中
-        textArea.appendText("Clicked button: " + buttonText + "\n");
+        int times = 0;
+        switch (buttonText) {
+            case "抽奖一次":
+                times = 1;
+                break;
+            case "抽奖五次":
+                times = 5;
+                break;
+            case "抽奖十次":
+                times = 10;
+                break;
+            case "抽奖一百次":
+                times = 100;
+                break;
+            case "抽奖一千次":
+                times = 1000;
+                break;
+            case "抽奖一万次":
+                times = 10000;
+                break;
+            case "抽奖十万次":
+                times = 100000;
+                break;
+            case "抽奖一百万次":
+                times = 1000000;
+                break;
+            case "抽奖一千万次":
+                times = 10000000;
+                break;
+            case "抽奖一亿次":
+                times = 100000000;
+                break;
+            case "抽奖十亿次":
+                times = 1000000000;
+                break;
+            default:
+                alert(false, "抽奖次数错误");
+                return;
+        }
+        user.setTextArea(textArea);
+        user.setPp(pp);
+        int finalTimes = times;
+        Thread thread = new Thread(() -> {
+            HelloApplication.lock = true;
+            user.drawing(finalTimes);
+            HelloApplication.lock = false;
+        });
+        thread.start();
+        HelloApplication.progress = 0;
+        int finalTimes1 = times;
+        Thread thread1 = new Thread(() -> {
+            Instant lastTime = Instant.now();
+            while (HelloApplication.progress < finalTimes1) {
+                System.out.println("progress: " + HelloApplication.progress + "/" + finalTimes1);
+                Platform.runLater(() -> progressBar.setProgress((double) HelloApplication.progress / finalTimes1));
+                lastTime = Instant.now();
+                try {
+                    sleep(100);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            Platform.runLater(() -> progressBar.setProgress(1));
+        });
+        thread1.start();
 
     }
 
     public void reset(ActionEvent actionEvent) {
-        // 获取点击的按钮
-        Button clickedButton = (Button) actionEvent.getSource();
-        String buttonText = clickedButton.getText();
-
-
-        // 将按钮的名称追加到TextArea中
-        textArea.appendText("Clicked button: " + buttonText + "\n");
-
+        user = new User();
+        textArea.setText("重置成功");
     }
 
     public void initPrizePool(ActionEvent actionEvent) {
@@ -90,7 +157,14 @@ public class HelloController {
 
             while ((line = reader.readLine()) != null) {
                 String[] values = line.split(" ");
-                Prize p = new Prize(values[0], Float.parseFloat(values[1]));
+                BigDecimal rate;
+                if (values[1].contains("%")) {
+                    rate = new BigDecimal(values[1].replace("%", ""));
+                    rate = rate.divide(new BigDecimal("100"));
+                } else {
+                    rate = new BigDecimal(values[1]);
+                }
+                Prize p = new Prize(values[0], rate);
                 prizeList.add(p);
             }
             pp.setPrizes(prizeList);
@@ -102,7 +176,7 @@ public class HelloController {
                     if (prizeList.size() == pIndex) {
                         text = "";
                     } else {
-                        text = col % 2 == 0 ? prizeList.get(pIndex).getName() : prizeList.get(pIndex++).getRate() + "";
+                        text = col % 2 == 0 ? prizeList.get(pIndex).getName() : prizeList.get(pIndex++).getRate().multiply(new BigDecimal("100")).stripTrailingZeros().toPlainString() + "%";
                     }
                     TextField textField = new TextField();
                     textField.setText(text);
@@ -120,7 +194,7 @@ public class HelloController {
         }
     }
 
-    private void updatePrizeList() {
+    public void updatePrizeList() {
         List<Prize> newPrizeList = new ArrayList<>();
         String t = "name";
         for (Node node : gridPane.getChildren()) {
@@ -128,20 +202,37 @@ public class HelloController {
             if (node instanceof TextField) {
                 if (t.equals("name") && !((TextField) node).getText().equals("")) {
                     t = "rate";
-                    newPrizeList.add(new Prize(((TextField) node).getText(), 0));
+                    newPrizeList.add(new Prize(((TextField) node).getText(), null));
                 } else if (t.equals("rate")) {
                     t = "name";
                     try {
-                        newPrizeList.get(newPrizeList.size() - 1).setRate(Float.parseFloat(((TextField) node).getText()));
+                        if (((TextField) node).getText().contains("%")) {
+                            newPrizeList.get(newPrizeList.size() - 1).setRate(new BigDecimal((((TextField) node).getText().replace("%", ""))).divide(BigDecimal.valueOf(100)));
+                        } else {
+                            newPrizeList.get(newPrizeList.size() - 1).setRate(new BigDecimal(((TextField) node).getText()));
+                        }
                     } catch (Exception e) {
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                        alert.setContentText("有一个概率格式输入错误，取消更新");
+                        alert(true, "概率输入错误, 已自动回复原值");
                         return;
                     }
                 }
             }
         }
+        alert(true, "更新成功");
         prizeList = newPrizeList;
+        pp.setPrizes(prizeList);
+    }
+
+    public Alert alert(Boolean hid, String s) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setContentText(s);
+        if (hid) {
+            System.out.println(s);
+        } else {
+            System.out.println(s);
+            alert.show();
+        }
+        return alert;
     }
 
 //    private void updatePrizeList() {
@@ -188,11 +279,12 @@ public class HelloController {
 
     public void saveRates() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("record.txt"))) {
-            int colCount = gridPane.getColumnCount();
             for (Prize prize : prizeList) {
-                writer.write(prize.getName() + " " + prize.getRate() + "\n");
+                writer.write(prize.getName() + " " + (prize.getRate()).multiply(BigDecimal.valueOf(100)).stripTrailingZeros().toPlainString() + "%\n");
             }
+            alert(false, "保存成功");
         } catch (IOException e) {
+            alert(false, "保存失败");
             e.printStackTrace();
         }
     }
@@ -218,9 +310,9 @@ public class HelloController {
     }
 
     public void sum(ActionEvent actionEvent) {
-        BigDecimal f = new BigDecimal("0.000000");
+        BigDecimal f = new BigDecimal("0.0");
         for (Prize prize : prizeList) {
-            f = f.add(new BigDecimal(""+prize.getRate()));
+            f = f.add( prize.getRate());
         }
         // 提示框
         Alert alert = new Alert(Alert.AlertType.INFORMATION);

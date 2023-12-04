@@ -10,8 +10,8 @@ import java.util.List;
 public class Draw {
 
     private String id;
-    private String times;
-    private Prize prize;
+    private int times;
+    private List<Prize> prizeList;
     private String remark;
     private String detail;
 
